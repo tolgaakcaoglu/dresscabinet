@@ -102,6 +102,8 @@ class _DeliveryResultWidgetState extends State<DeliveryResultWidget> {
       onWebViewCreated: (controller) {
         controller.loadHtmlString(widget.paymentHTML);
       },
+     
+     
       onPageFinished: (url) async {
         if (url.contains("odemeKontrolIyzico")) {
           var uri = Uri.parse(url);
@@ -152,7 +154,7 @@ class _DeliveryResultWidgetState extends State<DeliveryResultWidget> {
                   ),
                 ],
               ),
-            )),
+            ),),
     );
   }
 

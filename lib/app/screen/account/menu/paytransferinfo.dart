@@ -1,9 +1,11 @@
 import 'package:dresscabinet/app/constants/constwidgets.dart';
 import 'package:dresscabinet/app/constants/ordercard.dart';
+import 'package:dresscabinet/app/functions/jsonfunc.dart';
 import 'package:dresscabinet/app/functions/userfunc.dart';
 import 'package:dresscabinet/app/modals/clientmodal.dart';
 import 'package:dresscabinet/app/modals/ordermodal.dart';
 import 'package:dresscabinet/app/modals/productmodal.dart';
+import 'package:dresscabinet/app/modals/transferinfomodal.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -21,23 +23,24 @@ class PayTrasferInfo extends StatefulWidget {
 
 class _PayTrasferInfoState extends State<PayTrasferInfo> {
   Order _selectedOrder;
-  TextEditingController ibanController = TextEditingController();
   TextEditingController totalPayController = TextEditingController();
   TextEditingController captionController = TextEditingController();
+  BankTransfer selectedBank;
+  List<BankTransfer> bankList;
+  List<DropdownMenuItem> dropitems;
 
   updateOrder(Order o) => setState(() => _selectedOrder = o);
   void sendButton() async {
-    String iban = ibanController.text.trim().replaceAll(' ', '');
     String total = totalPayController.text.trim().replaceAll(',', '.');
     String caption = captionController.text.trim();
 
     if (_selectedOrder != null &&
-        iban.isNotEmpty &&
+        selectedBank != null &&
         total.isNotEmpty &&
         caption.isNotEmpty) {
       int orderId = _selectedOrder.orderId;
       dynamic body = await UserFunc.sendTransferForm(
-          widget.client.id, orderId, total, caption, iban);
+          widget.client.id, orderId, total, caption, selectedBank.id);
 
       if (body == "1") {
         showSuccess();
@@ -71,6 +74,48 @@ class _PayTrasferInfoState extends State<PayTrasferInfo> {
         );
       },
     );
+  }
+
+  void _getBanks() async {
+    List<BankTransfer> bList = [];
+    List list = await JsonFunctions.getTransferInfo();
+    for (var item in list) {
+      bList.add(BankTransfer.build(item));
+    }
+
+    if (mounted) {
+      setState(() {
+        bankList = bList;
+      });
+
+      _dropwdownItems();
+    }
+  }
+
+  void _dropwdownItems() {
+    List<DropdownMenuItem> items = [];
+
+    for (BankTransfer bank in bankList) {
+      items.add(DropdownMenuItem(
+        value: bank,
+        child: Padding(
+          padding: const EdgeInsets.only(left: 8.0),
+          child: Text(bank.bank),
+        ),
+      ));
+    }
+
+    if (mounted) {
+      setState(() {
+        dropitems = items;
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    _getBanks();
+    super.initState();
   }
 
   @override
@@ -116,11 +161,30 @@ class _PayTrasferInfoState extends State<PayTrasferInfo> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          ConstWidgets.textField(
-                            isDark,
-                            controller: ibanController,
-                            hint: 'TR32 7633 0000 0001 1233 21',
-                            label: 'IBAN',
+                          DropdownButtonHideUnderline(
+                            child: Container(
+                              margin: const EdgeInsets.all(4.0),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8.0, vertical: 6.0),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8.0),
+                                color: isDark ? Colors.white10 : Colors.white,
+                              ),
+                              child: DropdownButton(
+                                value: selectedBank,
+                                isExpanded: true,
+                                hint: const Padding(
+                                  padding: EdgeInsets.only(left: 8.0),
+                                  child: Text('Banka seçin'),
+                                ),
+                                items: dropitems ?? [],
+                                onChanged: (value) {
+                                  setState(() {
+                                    selectedBank = value;
+                                  });
+                                },
+                              ),
+                            ),
                           ),
                           const SizedBox(height: 8.0),
                           ConstWidgets.textField(

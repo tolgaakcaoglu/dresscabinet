@@ -41,7 +41,9 @@ class Payment {
       'il_adi': 'İstanbul',
       'products': jsonEncode(await _getProdsMap(baskets, allProducts)),
     });
-
+    if (res.body == "") {
+      return '<p><h1>Geçersiz kart bilgisi girdiniz. Lütfen geri gidip bilgilerinizi düzenleyin.</h1></p>';
+    }
     var action = res.body
         .split('action="')
         .last

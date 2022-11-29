@@ -82,6 +82,7 @@ class UserFunc {
       bool onSms,
       bool onPrivacy) async {
     var url = Uri.https('dresscabinet.com', 'api/uyeler/sign-up');
+
     var response = await http.post(url, body: {
       'adi_soyadi': displayName,
       'email': email,
@@ -207,14 +208,14 @@ class UserFunc {
   }
 
   static Future sendTransferForm(int clientId, int orderId, String total,
-      String caption, String bankId) async {
+      String caption, int bankId) async {
     var url = Uri.https('dresscabinet.com', 'api/uyeler/havale-bildirim-formu');
     var response = await http.post(url, body: {
       'uye_id': clientId.toString(),
       'siparis_id': orderId.toString(),
-      'banka_id': bankId,
+      'banka_id': bankId.toString(),
       'tutar': total,
-      'aciklama': caption, // ! TODO BANKA ID GEÇERSİZ
+      'aciklama': caption,
     });
 
     return response.body;

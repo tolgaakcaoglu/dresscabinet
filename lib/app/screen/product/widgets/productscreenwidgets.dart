@@ -1367,7 +1367,7 @@ class ProductScreenBottomBar extends StatelessWidget {
                                   showPop(context);
                                 },
                       child: Text(
-                        isAdded ? 'SEPETE EKLENDİ' : 'SEPETE EKLEe',
+                        isAdded ? 'SEPETE EKLENDİ' : 'SEPETE EKLE',
                         style: const TextStyle(
                           overflow: TextOverflow.ellipsis,
                           fontSize: 14.0,

@@ -92,15 +92,16 @@ class _DeliveryScreenState extends State<DeliveryScreen> {
           title: _counterWidget(isDark),
           leading: BackButton(onPressed: backButtonPress),
           actions: [
-            if (stepCount != 2)
-              TextButton(
-                onPressed: () => stepCount == 0
-                    ? step0nextButton()
-                    : stepCount == 1
-                        ? step1nextButton()
-                        : step2nextButton(),
-                child: const Text('İlerle'),
-              ),
+            stepCount == 2 && paymentType == 'credit_card'
+                ? const SizedBox()
+                : TextButton(
+                    onPressed: () => stepCount == 0
+                        ? step0nextButton()
+                        : stepCount == 1
+                            ? step1nextButton()
+                            : step2nextButton(),
+                    child: const Text('İlerle'),
+                  ),
           ],
         ),
         body: IndexedStack(
@@ -144,6 +145,7 @@ class _DeliveryScreenState extends State<DeliveryScreen> {
             DeliveryResultWidget(
               onPaymentStatus: (paymentRequest) {
                 if (paymentRequest != null) {
+                  if (paymentRequest == "success") _successPaymentCreateOrder();
                   Navigate.rnext(
                       context, PaymentRequestScreen(status: paymentRequest));
                 }
@@ -305,7 +307,12 @@ class _DeliveryScreenState extends State<DeliveryScreen> {
         widget.baskets,
         widget.allProducts);
 
-    setState(() {});
+    if (mounted) {
+      if (paymentHTML == null || paymentHTML == "error") {
+        const PaymentRequestScreen(status: 'failure');
+      }
+      setState(() {});
+    }
   }
 
   step2nextButton() async {
@@ -363,30 +370,56 @@ class _DeliveryScreenState extends State<DeliveryScreen> {
       } else {
         Fluttertoast.showToast(msg: 'Lütfen ödeme yapacağınız bankayı seçin');
       }
-    } else {
-      await UserFunc.createNewOrder(
-        widget.client,
-        addresses[deliveryAdressIndex],
-        billingAdressIndex == null ? null : addresses[billingAdressIndex],
-        paymentType,
-        widget.baskets,
-        noteController.text.trim(),
-        widget.totalPayment < widget.settings.freeShippingLimit
-            ? widget.settings.shippingPay
-            : 0,
-        billing,
-        selectedBank,
-        await AddressFunc.getProvinceWithId(addresses[deliveryAdressIndex].id),
-        await AddressFunc.getDistrictWithId(addresses[deliveryAdressIndex].id),
-        billing
-            ? null
-            : await AddressFunc.getProvinceWithId(
-                addresses[billingAdressIndex].id),
-        billing
-            ? null
-            : await AddressFunc.getDistrictWithId(
-                addresses[billingAdressIndex].id),
+    } else {}
+  }
+
+  _successPaymentCreateOrder() async {
+    var body = await UserFunc.createNewOrder(
+      widget.client,
+      addresses[deliveryAdressIndex],
+      billingAdressIndex == null ? null : addresses[billingAdressIndex],
+      paymentType,
+      widget.baskets,
+      noteController.text.trim(),
+      widget.totalPayment < widget.settings.freeShippingLimit
+          ? widget.settings.shippingPay
+          : 0,
+      billing,
+      selectedBank,
+      await AddressFunc.getProvinceWithId(addresses[deliveryAdressIndex].id),
+      await AddressFunc.getDistrictWithId(addresses[deliveryAdressIndex].id),
+      billing
+          ? null
+          : await AddressFunc.getProvinceWithId(
+              addresses[billingAdressIndex].id),
+      billing
+          ? null
+          : await AddressFunc.getDistrictWithId(
+              addresses[billingAdressIndex].id),
+    );
+
+    if (body == "1") {
+      LocalDb.instance.deleteBasket();
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) {
+          return CupertinoAlertDialog(
+            title: const Text('Tebrikler'),
+            content: const Text(
+                'Siparişiniz başarıyla oluşturuldu. Siparişlerim kısmından siparişlerinizi yönetebilirsiniz.'),
+            actions: [
+              CupertinoButton(
+                  child: const Text('Tamam'),
+                  onPressed: () {
+                    Navigate.rnext(context, const AilApp());
+                  })
+            ],
+          );
+        },
       );
+    } else {
+      Fluttertoast.showToast(msg: body.toString());
     }
   }
 
