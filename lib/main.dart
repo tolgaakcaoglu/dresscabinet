@@ -16,7 +16,9 @@ Future<void> main() async {
       systemNavigationBarColor: color);
 
   SystemChrome.setSystemUIOverlayStyle(style);
+
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+  await SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
   await CountryCodes.init();
   await ConstPreferences.init();
 

@@ -80,7 +80,8 @@ class UserFunc {
       String phone,
       bool onEmail,
       bool onSms,
-      bool onPrivacy) async {
+      bool onPrivacy,
+      gender) async {
     var url = Uri.https('dresscabinet.com', 'api/uyeler/sign-up');
 
     var response = await http.post(url, body: {
@@ -88,6 +89,7 @@ class UserFunc {
       'email': email,
       'sifre': password,
       'telefon': phone,
+      'cinsiyet': gender,
       'kampanya_email_izin': onEmail ? "1" : "0",
       'kampanya_sms_izin': onSms ? "1" : "0",
       'sozlesme_izin': onPrivacy ? "1" : "0",

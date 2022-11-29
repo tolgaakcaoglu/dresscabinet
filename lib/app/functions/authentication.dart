@@ -2,6 +2,7 @@ import 'package:dresscabinet/app/functions/userfunc.dart';
 import 'package:dresscabinet/app/utils/navigate.dart';
 import 'package:dresscabinet/app/utils/sharedpreferences.dart';
 import 'package:dresscabinet/main.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -40,44 +41,52 @@ class Authentication {
       String displayName,
       String email,
       String password,
+      String passwordR,
       String phone,
       bool onEmail,
       bool onSms,
-      bool onPolicy) async {
+      bool onPolicy,
+      String gender) async {
     if (onPolicy) {
-      if (displayName.isNotEmpty && email.isNotEmpty && password.isNotEmpty) {
-        UserFunc.signupFunction(
-                displayName, email, password, phone, onEmail, onSms, onPolicy)
-            .then((value) => value == "1"
-                ? showDialog(
-                    context: context,
-                    barrierDismissible: false,
-                    builder: (context) => CupertinoAlertDialog(
-                      title: const Text('Hesabınız Oluşturuldu!'),
-                      actions: [
-                        CupertinoButton(
-                          child: const Text('Giriş yap'),
-                          onPressed: () => Navigator.of(context)
-                            ..pop()
-                            ..pop(),
-                        )
-                      ],
-                    ),
-                  )
-                : showDialog(
-                    context: context,
-                    builder: (context) => CupertinoAlertDialog(
-                      title: const Text('Bir hata oluştu'),
-                      content: const Text(
-                          'Yeni hesabınız oluşturulurken bir sorunla karşılaştık. Lütfen daha sonra tekrar deneyin.'),
-                      actions: [
-                        CupertinoButton(
-                          child: const Text('Tamam'),
-                          onPressed: () => Navigate.back(context),
-                        )
-                      ],
-                    ),
-                  ));
+      if (displayName.isNotEmpty &&
+          email.isNotEmpty &&
+          password.isNotEmpty &&
+          passwordR.isNotEmpty) {
+        if (password == passwordR) {
+          UserFunc.signupFunction(displayName, email, password, phone, onEmail,
+                  onSms, onPolicy, gender)
+              .then((value) => value == "1"
+                  ? showDialog(
+                      context: context,
+                      barrierDismissible: false,
+                      builder: (context) => CupertinoAlertDialog(
+                        title: const Text('Hesabınız Oluşturuldu!'),
+                        actions: [
+                          CupertinoButton(
+                            child: const Text('Giriş yap'),
+                            onPressed: () => Navigator.of(context)
+                              ..pop()
+                              ..pop(),
+                          )
+                        ],
+                      ),
+                    )
+                  : showDialog(
+                      context: context,
+                      builder: (context) => CupertinoAlertDialog(
+                        title: const Text('Bir hata oluştu'),
+                        content: Text(value),
+                        actions: [
+                          CupertinoButton(
+                            child: const Text('Tamam'),
+                            onPressed: () => Navigate.back(context),
+                          )
+                        ],
+                      ),
+                    ));
+        } else {
+          Fluttertoast.showToast(msg: 'Girdiğiniz şifreler  uyuşmuyor.');
+        }
       } else {
         showDialog(
           context: context,

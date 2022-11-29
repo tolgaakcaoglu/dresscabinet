@@ -237,8 +237,9 @@ class _SearchScreenState extends State<SearchScreen> {
                                   viewingCount: gridCount,
                                   orderByController: orderByController,
                                 ),
-                                SearchScreenProductCount(
-                                    length: viewingProductCount),
+                                if (selectedColor == null)
+                                  SearchScreenProductCount(
+                                      length: viewingProductCount),
                                 if (orderType != null || selectedColor != null)
                                   SearchScreenAppliedFilters(
                                     orderName: _getOrderTypeNames(),

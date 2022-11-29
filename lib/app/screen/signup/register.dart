@@ -19,10 +19,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
   String name = '';
   String email = '';
   String password = '';
+  String passwordR = '';
   String phone = '';
   bool onEmail = false;
   bool onSms = false;
   bool onPolicy = false;
+  String gender;
 
   @override
   Widget build(BuildContext context) {
@@ -73,6 +75,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 const SizedBox(height: 8.0),
                 ConstWidgets.textField(
                   isDark,
+                  obscureText: true,
+                  label: 'Şifre Tekrar',
+                  onChang: (v) {
+                    setState(() {
+                      passwordR = v.trim();
+                    });
+                  },
+                ),
+                const SizedBox(height: 8.0),
+                ConstWidgets.textField(
+                  isDark,
                   label: 'Telefon Numarası',
                   prefix: _flagIcon(),
                   type: TextInputType.number,
@@ -81,6 +94,26 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       phone = v.replaceAll(' ', '');
                     });
                   },
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 4.0, vertical: 12.0),
+                  child: SizedBox(
+                    width: MediaQuery.of(context).size.width - 32,
+                    child: CupertinoSlidingSegmentedControl(
+                      padding: const EdgeInsets.all(4.0),
+                      groupValue: gender,
+                      children: const {
+                        'Erkek': Text('Erkek'),
+                        'Kadın': Text('Kadın'),
+                      },
+                      onValueChanged: (v) {
+                        setState(() {
+                          gender = v;
+                        });
+                      },
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 16.0),
                 _buildCheckTile(
@@ -124,10 +157,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           name,
                           email,
                           password,
+                          passwordR,
                           (CountryCodes.dialCode() + phone),
                           onEmail,
                           onSms,
-                          onPolicy)),
+                          onPolicy,
+                          gender)),
                 ),
                 const SizedBox(height: 32.0),
                 CupertinoButton(
